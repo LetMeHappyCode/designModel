@@ -1,6 +1,6 @@
 package com.algorithm.linkedList;
 
-public class Node {
+class Node {
     int val;
     Node next;
     Node random;
