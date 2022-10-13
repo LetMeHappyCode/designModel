@@ -6,10 +6,7 @@ import org.junit.Test;
 import org.yaml.snakeyaml.events.Event;
 
 import java.awt.*;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Stack;
+import java.util.*;
 
 public class printTree {
     /**
@@ -312,27 +309,36 @@ public class printTree {
         }
         System.out.println("NodeNum:"+NodeNum+"--curLevel:"+curLevel);
 
-        if ((Math.pow(2,curLevel) -1) == NodeNum){
-            return true;
-        }
-        return false;
+        return Math.pow(2,curLevel) -1 == NodeNum;
 
     }
     /**
      * 判断是否是满二叉树(递归)
+     * ps:递归的本质 是 栈
      * 最大深度 ：l
      * 节点数：N
      * 使用公式：N=2^l -1
      */
     public boolean isFull(BiTreeNode head){
+        System.out.println("递归判断满二叉树");
         if (head == null){
             return true;
         }
-        return true;
+        Info data = f(head);
+        System.out.println(data.height+":"+data.nodes);
+        return data.nodes == (Math.pow(2, data.height) -1);
     }
 
-    public Info f(BiTreeNode head){
+    public Info f(BiTreeNode x){
+        if (x == null){
+            return new Info(0,0);
+        }
+        Info leftData = f(x.left);
+        Info rightData = f(x.right);
 
+        int height = Math.max(leftData.height, rightData.height) + 1;
+        int nodes = leftData.nodes + rightData.nodes +1;
+        return new Info(height,nodes);
     }
 
     public static class Info{
@@ -345,10 +351,67 @@ public class printTree {
         }
     }
 
+    /**
+     * 判断是否是平衡二叉树
+     * |左高度-右高度| <= 1
+     */
+    public boolean isBalanced(BiTreeNode head){
+        System.out.println("平衡二叉树");
+        return process(head).isBalanced;
+    }
+
+    public static ReturnTypt process(BiTreeNode x){
+        if (x == null){
+            return new ReturnTypt(true,0);
+        }
+        ReturnTypt leftData = process(x.left);
+        ReturnTypt rightData = process(x.right);
+        //当前节点的高度
+        int height = Math.max(leftData.height, rightData.height) + 1;
+        boolean isBalanced = leftData.isBalanced&&rightData.isBalanced
+                && Math.abs(leftData.height - rightData.height)<2 ;
+        return new ReturnTypt(isBalanced,height);
+    }
+
+    public static class ReturnTypt{
+        public boolean isBalanced;
+        public int height;
+        public ReturnTypt(boolean isBalanced,int height){
+            this.isBalanced = isBalanced;
+            this.height = height;
+        }
+    }
+
+    /**
+     * 给定两个二叉树节点node1和node2，找到他们的最低公共祖先节点
+     */
+    public void lowestAncestorByMap(BiTreeNode head,BiTreeNode o1,BiTreeNode o2){
+        HashMap<BiTreeNode,BiTreeNode> fatherMap =new HashMap<>();
+        fatherMap.put(head,head);
+        //找到所有节点的父节点放入map
+        processLowestAncestor(head,fatherMap);
+
+        HashSet<BiTreeNode> set = new HashSet<>();
+
+        BiTreeNode cur=o1;
+
+
+    }
+    public void processLowestAncestor(BiTreeNode head,HashMap<BiTreeNode,BiTreeNode> fatherMap){
+        if (head == null){
+            return;
+        }
+        fatherMap.put(head.left,head);
+        fatherMap.put(head.right,head);
+        processLowestAncestor(head.left,fatherMap);
+        processLowestAncestor(head.right,fatherMap);
+    }
+
+
     @Test
     public void biTreeTest(){
         BiTree biTree = new BiTree();
-        int[] nums = new int[]{1, 2, 3, 4, 5, 6,7,8,9};
+        int[] nums = new int[]{1, 2, 3, 4, 5, 6,7};
 //        int[] nums = new int[]{9, 7, 15, 4, 8, 13,19 ,2 ,5}; //搜索树
         BiTreeNode binTree = biTree.createBinTree(nums, 0);
         preOrderRecur(binTree);
@@ -370,6 +433,8 @@ public class printTree {
         System.out.println(cbt);
         boolean f = isFullByMap(binTree);
         System.out.println(f);
+        System.out.println(isFull(binTree));
+        System.out.println(isBalanced(binTree));
     }
 
     public static void main(String[] args) {
