@@ -3,6 +3,7 @@ package com.algorithm.Tree;
 import com.algorithm.Tree.biTree.BiTree;
 import com.algorithm.Tree.biTree.BiTreeNode;
 import org.junit.Test;
+import org.springframework.beans.propertyeditors.CurrencyEditor;
 import org.yaml.snakeyaml.events.Event;
 
 import java.awt.*;
@@ -383,9 +384,10 @@ public class printTree {
     }
 
     /**
-     * 给定两个二叉树节点node1和node2，找到他们的最低公共祖先节点
+     * 给定两个二叉树节点node1和node2，找到他们的最低公共祖先节点(map发)
      */
-    public void lowestAncestorByMap(BiTreeNode head,BiTreeNode o1,BiTreeNode o2){
+    public BiTreeNode lowestAncestorByMap(BiTreeNode head,BiTreeNode o1,BiTreeNode o2){
+        System.out.println("最低公共祖先节点");
         HashMap<BiTreeNode,BiTreeNode> fatherMap =new HashMap<>();
         fatherMap.put(head,head);
         //找到所有节点的父节点放入map
@@ -394,9 +396,23 @@ public class printTree {
         HashSet<BiTreeNode> set = new HashSet<>();
 
         BiTreeNode cur=o1;
+        while (cur != fatherMap.get(cur)){
+            set.add(cur);
+            cur = fatherMap.get(cur);
+        }
+        set.add(head);
 
-
+        cur = o2;
+        while (cur != fatherMap.get(cur)){
+            if (set.contains(cur)){
+                return cur;
+            }
+            cur = fatherMap.get(cur);
+        }
+        return null;
     }
+
+
     public void processLowestAncestor(BiTreeNode head,HashMap<BiTreeNode,BiTreeNode> fatherMap){
         if (head == null){
             return;
@@ -407,11 +423,41 @@ public class printTree {
         processLowestAncestor(head.right,fatherMap);
     }
 
+    /**
+     * 给定两个二叉树节点node1和node2，找到他们的最低公共祖先节点
+     * 两种情况：
+     * 第一种：o1是o2的公共祖先节点，或o2是o1
+     * 第二种： o1，o2的公共祖先节点是其他节点
+     *
+     * 只返回，等于o1或2的几点 和 返回 公共祖先节点是其他节点的情况
+     */
+    public BiTreeNode lowestAncestor(BiTreeNode head,BiTreeNode o1,BiTreeNode o2){
+        //第一种情况，遇到直接返回，如果遇到o1，返回o1，此时如果o2在o1之下不会遍历到，o1一定是o2的祖先节点。
+        // 否则就是第二种情况
+        if (head == null || head==o1 || head == o2){
+            return head;
+        }
+        BiTreeNode left = lowestAncestor(head.left,o1,o2);
+        BiTreeNode right = lowestAncestor(head.right,o1,o2);
+        //第二种情况 ,返回 公共祖先节点是其他节点的情况
+        if (left!=null && right!=null){
+            return head;
+        }
+        return left!=null?left:right;
+    }
+
+    /**
+     * 二叉树找后继节点，后继节点就是x节点在中序遍历中的下一个节点
+     * 有规律：
+     */
+    public void getSuccessorNode(BiTreeNode node){
+
+    }
 
     @Test
-    public void biTreeTest(){
+    public void biTreeTest() {
         BiTree biTree = new BiTree();
-        int[] nums = new int[]{1, 2, 3, 4, 5, 6,7};
+        int[] nums = new int[]{1, 2, 3, 4, 5, 6, 7};
 //        int[] nums = new int[]{9, 7, 15, 4, 8, 13,19 ,2 ,5}; //搜索树
         BiTreeNode binTree = biTree.createBinTree(nums, 0);
         preOrderRecur(binTree);
@@ -435,6 +481,10 @@ public class printTree {
         System.out.println(f);
         System.out.println(isFull(binTree));
         System.out.println(isBalanced(binTree));
+        BiTreeNode o1 = binTree.left;
+        BiTreeNode o2 = binTree.left.right;
+//        System.out.println(lowestAncestorByMap(binTree, o1, o2).value);
+        System.out.println(lowestAncestor(binTree, o1, o2).value);
     }
 
     public static void main(String[] args) {
