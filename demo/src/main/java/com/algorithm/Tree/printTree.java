@@ -454,6 +454,49 @@ public class printTree {
 
     }
 
+    /**
+     * 以head为头的树，序列化成字符串
+     * @param head
+     * @return
+     */
+    public String serialByPre(BiTreeNode head){
+
+        if (head == null){
+            return "#_";
+        }
+        String res = head.value + "_";
+        res += serialByPre(head.left);
+        res += serialByPre(head.right);
+        return res;
+    }
+
+    public BiTreeNode reconByPreString(String preStr){
+        String[] values = preStr.split("_");
+        Queue<String> queue = new LinkedList<>();
+        for (int i =0;i != values.length;i++){
+            queue.add(values[i]);
+        }
+        return reconPreOrder(queue);
+
+    }
+
+    /**
+     * 字符串 反序列化 为二叉树
+     * @param queue
+     * @return
+     */
+    public BiTreeNode reconPreOrder(Queue<String> queue){
+        String value = queue.poll();
+        if (value.equals("#")){
+            return null;
+        }
+
+        BiTreeNode head = new BiTreeNode(Integer.valueOf(value));
+        head.left = reconPreOrder(queue);
+        head.right = reconPreOrder(queue);
+        return head;
+    }
+
     @Test
     public void biTreeTest() {
         BiTree biTree = new BiTree();
@@ -485,12 +528,19 @@ public class printTree {
         BiTreeNode o2 = binTree.left.right;
 //        System.out.println(lowestAncestorByMap(binTree, o1, o2).value);
         System.out.println(lowestAncestor(binTree, o1, o2).value);
+        System.out.println("二叉树的序列化");
+        String serialStr = serialByPre(binTree);
+        System.out.println(serialStr);
+
+        reconByPreString(serialStr);
+
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         Tree tree = new Tree();
         int[] nums = new int[]{1, 2, 4, 0, 0, 0, 3, 0, 0};
         tree.createTreeNode(nums);
         tree.printTree();
+        Thread.sleep(100000);
     }
 }
